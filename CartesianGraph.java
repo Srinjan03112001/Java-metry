@@ -50,9 +50,9 @@ public class CartesianGraph extends JFrame {
             }
         };
 
-        JPanel lowerPanel = new JPanel(new GridLayout(1,4));
-        JLabel distanceLabel = new JLabel("Distance measure of Line: "+distance+" px");
-        lowerPanel.add(distanceLabel);
+        JPanel lowerPanel = new JPanel(new GridLayout(1,4)); // Created a new section where one side will display the distnace measure of the line and the other side will have "Draw Line" button
+        JLabel distanceLabel = new JLabel("Distance measure of Line: "+distance+" px"); // It is a label that prints the distnace value on the screen
+        lowerPanel.add(distanceLabel); // Added the distance measurement line on the section
 
         // Create draw button that when clicked will draw a line on to the graph
         drawButton = new JButton("Draw Line"); // The label of the button says "Draw Line:"
@@ -73,7 +73,7 @@ public class CartesianGraph extends JFrame {
         Container contentPane = getContentPane();
         contentPane.add(inputPanel, BorderLayout.NORTH); // input components at the top
         contentPane.add(drawingPanel, BorderLayout.CENTER); // cartesian graph at the center
-        contentPane.add(lowerPanel, BorderLayout.SOUTH);
+        contentPane.add(lowerPanel, BorderLayout.SOUTH); // The button and distance measure on the bottom
         //contentPane.add(drawButton, BorderLayout.SOUTH); // 'Draw Line' button at the bottom
     }
 
@@ -91,7 +91,7 @@ public class CartesianGraph extends JFrame {
     // This method is used to draw the line as per the coordinates given by the user
     private void drawLine(Graphics g) {
         try {
-            // Converts String inputs into integer values
+            // Converts String inputs into numerical values
             int x1 = Integer.parseInt(x1Field.getText());
             int y1 = Integer.parseInt(y1Field.getText());
             int x2 = Integer.parseInt(x2Field.getText());
@@ -114,6 +114,7 @@ public class CartesianGraph extends JFrame {
         return drawingPanel.getHeight() / 2 - y;
     }
 
+    // This meathod caluclates the distance measure of the line
     private double CalDistance(){
         try{
             // Converts String inputs into integer values
@@ -121,9 +122,9 @@ public class CartesianGraph extends JFrame {
             int y1 = Integer.parseInt(y1Field.getText());
             int x2 = Integer.parseInt(x2Field.getText());
             int y2 = Integer.parseInt(y2Field.getText());
-            return Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
+            return Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2)); // applies the distance formula : √((x2 – x1)² + (y2 – y1)²)
         }catch (NumberFormatException e) {
-            return 0.0; // This will show a pop-up error message if the inputs of the coordinates aren't Integer values
+            return 0.0; // if the user input is anything but a number, it will keep a default value value of 0.0
         }
         
     }
