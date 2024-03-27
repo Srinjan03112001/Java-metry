@@ -9,7 +9,7 @@ public class CartesianGraph extends JFrame {
     private double distance;
     public CartesianGraph() {
         setTitle("Cartesian Graph"); // Gives a name to the window of our program
-        setSize(500, 500); // sets the height and width of our window
+        setSize(515, 605); // sets the height and width of our window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // This command specifies that if we close the window, the program will terminate automatically
         distance = 0.0;
         // Create input fields
@@ -51,7 +51,7 @@ public class CartesianGraph extends JFrame {
         };
 
         JPanel lowerPanel = new JPanel(new GridLayout(1,4)); // Created a new section where one side will display the distnace measure of the line and the other side will have "Draw Line" button
-        JLabel distanceLabel = new JLabel("Distance measure of Line: "+distance+" px"); // It is a label that prints the distnace value on the screen
+        JLabel distanceLabel = new JLabel("Distance measure of Line: " + String.format("%.2f",distance) + " units"); // It is a label that prints the distnace value on the screen
         lowerPanel.add(distanceLabel); // Added the distance measurement line on the section
 
         // Create draw button that when clicked will draw a line on to the graph
@@ -61,7 +61,7 @@ public class CartesianGraph extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 distance = CalDistance();
                 // Update label text with the new distance value
-                distanceLabel.setText("Distance measure of Line: " + distance + " px");
+                distanceLabel.setText("Distance measure of Line: " + String.format("%.2f",distance) + " units");
                 drawingPanel.repaint();// This means that everytime the button is clicked, a new line is drawn on the graph
                 
             }
@@ -86,6 +86,14 @@ public class CartesianGraph extends JFrame {
         g.setColor(Color.BLACK); // It sets the color BLACK for the x & y axis lines drawn
         g.drawLine(width / 2, 0, width / 2, height); // y-axis is drawn
         g.drawLine(0, height / 2, width, height / 2); // x-axis is drawn
+
+        for(int i=0; i<10; i++){
+            g.drawLine((width/2)-5, i*25, (width/2)+5, i*25);
+            g.drawLine((width/2)-5, height-(i*25), (width/2)+5, height-(i*25));
+
+            g.drawLine(i*25, (height/2)-5 ,i*25, (height/2)+5);
+            g.drawLine(width-(i*25), (height/2)-5 ,width-(i*25), (height/2)+5);
+        }
     }
 
     // This method is used to draw the line as per the coordinates given by the user
@@ -99,6 +107,18 @@ public class CartesianGraph extends JFrame {
             g.setColor(Color.RED); // sets the color of the line drawn as red
             g.drawLine(convertX(x1), convertY(y1), convertX(x2), convertY(y2)); // Draws a line from the coordinates 
 
+
+            g.setColor(Color.BLUE);
+            // Draw filled circles at each end of the line
+            int circleRadius = 5; // Set the radius of the circle
+            g.fillOval(convertX(x1) - circleRadius / 2, convertY(y1) - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x1, y1)
+            g.fillOval(convertX(x2) - circleRadius / 2, convertY(y2) - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x2, y2)
+            
+            
+            g.setFont(new Font("Arial", Font.PLAIN, 12)); // Set font size to 12
+            g.setColor(Color.RED);
+            g.drawString("(" + x1 + "," + y1 + ")", convertX(x1), convertY(y1) - 5); // Label vertex (x1, y1)
+            g.drawString("(" + x2 + "," + y2 + ")", convertX(x2), convertY(y2) - 5); // Label vertex (x2, y2)
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid integers for coordinates."); // This will show a pop-up error message if the inputs of the coordinates aren't Integer values
         }
@@ -106,12 +126,12 @@ public class CartesianGraph extends JFrame {
 
     // This will make sure that the coordinates of x entered by the user will be calculated based on the origin (0,0) of the Cartesian Graph
     private int convertX(int x) {
-        return drawingPanel.getWidth() / 2 + x;
+        return drawingPanel.getWidth() / 2 + (x*25);
     }
 
     // This will make sure that the coordinates of y entered by the user will be calculated based on the origin (0,0) of the Cartesian Graph
     private int convertY(int y) {
-        return drawingPanel.getHeight() / 2 - y;
+        return drawingPanel.getHeight() / 2 - (y*25);
     }
 
     // This meathod caluclates the distance measure of the line
