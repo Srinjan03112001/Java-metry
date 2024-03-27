@@ -6,12 +6,12 @@ public class CartesianGraph extends JFrame {
     private JTextField x1Field, y1Field, x2Field, y2Field;// These are variables that stores the coordinates of the two points (x1,y1) & (x2,y2)
     private JButton drawButton; // This is a variable that stores a button object which when clicked will draw a line on the graph
     private JPanel drawingPanel; // This defines the section of our window that will be used for drawing lines and for the display of the Cartesian Graph.
-
+    private double distance;
     public CartesianGraph() {
         setTitle("Cartesian Graph"); // Gives a name to the window of our program
         setSize(500, 500); // sets the height and width of our window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // This command specifies that if we close the window, the program will terminate automatically
-
+        distance = 0.0;
         // Create input fields
         JPanel inputPanel = new JPanel(new GridLayout(2, 4)); // Creates an invisible grid format on the window which has 2 rows and 4 coloumns
         
@@ -37,6 +37,8 @@ public class CartesianGraph extends JFrame {
         x2Field.setText("0");
         y2Field.setText("0");
 
+        
+
         // Create drawing panel which consists of the Cartesian Graph and the line that is drawon on to it 
         drawingPanel = new JPanel() {
             @Override
@@ -44,23 +46,35 @@ public class CartesianGraph extends JFrame {
                 super.paintComponent(g);
                 drawCartesianGraph(g); // First draws the cartesian graph
                 drawLine(g); // then draws the line
+                
             }
         };
+
+        JPanel lowerPanel = new JPanel(new GridLayout(1,4));
+        JLabel distanceLabel = new JLabel("Distance measure of Line: "+distance+" px");
+        lowerPanel.add(distanceLabel);
 
         // Create draw button that when clicked will draw a line on to the graph
         drawButton = new JButton("Draw Line"); // The label of the button says "Draw Line:"
         drawButton.addActionListener(new ActionListener() { // This method makes the button function the way it should
             @Override
             public void actionPerformed(ActionEvent e) {
+                distance = CalDistance();
+                // Update label text with the new distance value
+                distanceLabel.setText("Distance measure of Line: " + distance + " px");
                 drawingPanel.repaint();// This means that everytime the button is clicked, a new line is drawn on the graph
+                
             }
         });
+
+        lowerPanel.add(drawButton);
 
         // Add the different components to the program window such as the coordinate inputs, The Graph & the button
         Container contentPane = getContentPane();
         contentPane.add(inputPanel, BorderLayout.NORTH); // input components at the top
         contentPane.add(drawingPanel, BorderLayout.CENTER); // cartesian graph at the center
-        contentPane.add(drawButton, BorderLayout.SOUTH); // 'Draw Line' button at the bottom
+        contentPane.add(lowerPanel, BorderLayout.SOUTH);
+        //contentPane.add(drawButton, BorderLayout.SOUTH); // 'Draw Line' button at the bottom
     }
 
     // This method will draw and design the outline of the graph (or the drawing area)
@@ -84,6 +98,7 @@ public class CartesianGraph extends JFrame {
             int y2 = Integer.parseInt(y2Field.getText());
             g.setColor(Color.RED); // sets the color of the line drawn as red
             g.drawLine(convertX(x1), convertY(y1), convertX(x2), convertY(y2)); // Draws a line from the coordinates 
+
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid integers for coordinates."); // This will show a pop-up error message if the inputs of the coordinates aren't Integer values
         }
@@ -97,6 +112,20 @@ public class CartesianGraph extends JFrame {
     // This will make sure that the coordinates of y entered by the user will be calculated based on the origin (0,0) of the Cartesian Graph
     private int convertY(int y) {
         return drawingPanel.getHeight() / 2 - y;
+    }
+
+    private double CalDistance(){
+        try{
+            // Converts String inputs into integer values
+            int x1 = Integer.parseInt(x1Field.getText());
+            int y1 = Integer.parseInt(y1Field.getText());
+            int x2 = Integer.parseInt(x2Field.getText());
+            int y2 = Integer.parseInt(y2Field.getText());
+            return Math.sqrt(Math.pow((x2-x1),2) + Math.pow((y2-y1),2));
+        }catch (NumberFormatException e) {
+            return 0.0; // This will show a pop-up error message if the inputs of the coordinates aren't Integer values
+        }
+        
     }
 
     // This method will help run our code
