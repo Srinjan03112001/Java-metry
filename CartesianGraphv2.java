@@ -8,48 +8,57 @@ import java.util.List;
 public class CartesianGraphv2 extends JFrame {
 
     class LineSegment {
-        private int x1, y1, x2, y2;
+        private int x1, y1, x2, y2; // These variable stores the values of x & y coordinates in units
+        private int X1, Y1, X2, Y2; // These stores the values pf x & y coordinates in pixels
+        private double dist;
     
-        public LineSegment(int x1, int y1, int x2, int y2) {
+        public LineSegment(int x1, int y1, int x2, int y2, double dist) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;
             this.y2 = y2;
+            this.dist = dist;
+
+            X1 = convertX(x1);
+            Y1 = convertY(y1);
+            X2 = convertX(x2);
+            Y2 = convertY(y2);
         }
     
     
         public void draw(Graphics g) {
             g.setColor(Color.RED);
-            g.drawLine(x1, y1, x2, y2);
+            g.drawLine(X1, Y1, X2, Y2);
 
-            distance = CalDistance();
+            //dist = CalDistance();
 
             g.setColor(Color.BLUE);
             // Draw filled circles at each end of the line
             int circleRadius = 5; // Set the radius of the circle
-            g.fillOval(x1 - circleRadius / 2, y1 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x1, y1)
-            g.fillOval(x2 - circleRadius / 2, y2 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x2, y2)
+            g.fillOval(X1 - circleRadius / 2, Y1 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x1, y1)
+            g.fillOval(X2 - circleRadius / 2, Y2 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x2, y2)
             
             
             g.setFont(new Font("Arial", Font.PLAIN, 15)); // Set font size to 12
             g.setColor(Color.RED);
-            g.drawString("(" + x1Field.getText() + "," + y1Field.getText() + ")", x1, y1- 5); // Labels vertex (x1, y1)
-            g.drawString("(" + x2Field.getText() + "," + y2Field.getText() + ")", x2, y2 - 5); // Labels vertex (x2, y2)
-            g.drawString("dist("+String.format("%.2f", distance)+")", ((x1+x2)/2)-5, ((y1+y2)/2)-5); // This line will display the distance measure of the line
+            g.drawString("(" + x1 + "," + y1+ ")", X1, Y1- 5); // Labels vertex (x1, y1)
+            g.drawString("(" + x2 + "," + y2 + ")", X2, Y2 - 5); // Labels vertex (x2, y2)
+            g.drawString("dist("+String.format("%.2f", dist)+")", ((X1+X2)/2)-5, ((Y1+Y2)/2)-5); // This line will display the distance measure of the line
         }
     }
 
     private JTextField x1Field, y1Field, x2Field, y2Field;// These are variables that stores the coordinates of the two points (x1,y1) & (x2,y2)
     private JButton drawButton; // This is a variable that stores a button object which when clicked will draw a line on the graph
     private JPanel drawingPanel; // This defines the section of our window that will be used for drawing lines and for the display of the Cartesian Graph.
-    private double distance;
+    //private double distance;
     private List<LineSegment> lines = new ArrayList<>();
+    //private List<Double> dist = new ArrayList<>();
 
     public CartesianGraphv2() {
         setTitle("Cartesian Graph v2"); // Gives a name to the window of our program
         setSize(515, 605); // sets the height and width of our window
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // This command specifies that if we close the window, the program will terminate automatically
-        distance = 0.0;
+        //distance = 0.0;
         // Create input fields
         JPanel inputPanel = new JPanel(new GridLayout(2, 4)); // Creates an invisible grid format on the window which has 2 rows and 4 coloumns
         
@@ -147,7 +156,7 @@ public class CartesianGraphv2 extends JFrame {
             //g.setColor(Color.RED); // sets the color of the line drawn as red
             //g.drawLine(convertX(x1), convertY(y1), convertX(x2), convertY(y2)); // Draws a line from the coordinates
             // Addes the values of x & y coordinates of a line to a list of Line Segments
-            lines.add(new LineSegment(convertX(x1), convertY(y1), convertX(x2), convertY(y2))); 
+            lines.add(new LineSegment(x1, y1, x2, y2, CalDistance())); 
 
             
         } catch (NumberFormatException e) {
