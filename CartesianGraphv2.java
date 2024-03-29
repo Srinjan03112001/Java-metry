@@ -4,12 +4,13 @@
  */
 
  /*
-    Additional Features (to be added):
-    - Add different colors to different lines drawn.
-    - Add a seperate panel to display the distance values based on the colors of 
-    the lines and coordinates.
+    Added Features:
+    - Added a clear button to clear the entire graph and start fresh.
+    - Added different colors to different lines drawn.
+    - Added a seperate panel to display the distance values based on the colors of the lines and coordinates.
 
-    Bugs to Fix: 
+
+    Bugs to Fix: (Fixed!!)
     - Application window scalability issue.
   */
 import javax.swing.*;
@@ -20,52 +21,61 @@ import java.util.List;
 
 public class CartesianGraphv2 extends JFrame {
 
+    private Color[] colors = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.ORANGE, Color.PINK, Color.YELLOW};
+
     class LineSegment {
         private int x1, y1, x2, y2; // These variable stores the values of x & y coordinates in units
         private int X1, Y1, X2, Y2; // These stores the values pf x & y coordinates in pixels
         private double dist;
-    
+        
+        
         public LineSegment(int x1, int y1, int x2, int y2, double dist) {
             this.x1 = x1;
             this.y1 = y1;
             this.x2 = x2;
             this.y2 = y2;
             this.dist = dist;
-
+    
+            X1 = 0;
+            Y1 = 0;
+            X2 = 0;
+            Y2 = 0;
+        }
+    
+    
+        public void draw(Graphics g, int color_index) {
+            color_index = color_index%colors.length;
             X1 = convertX(x1);
             Y1 = convertY(y1);
             X2 = convertX(x2);
             Y2 = convertY(y2);
-        }
-    
-    
-        public void draw(Graphics g) {
-            g.setColor(Color.RED);
+
+            g.setColor(colors[color_index]);
             g.drawLine(X1, Y1, X2, Y2);
 
-            //dist = CalDistance();
-
-            g.setColor(Color.BLUE);
+            g.setColor(Color.BLACK);
             // Draw filled circles at each end of the line
             int circleRadius = 5; // Set the radius of the circle
             g.fillOval(X1 - circleRadius / 2, Y1 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x1, y1)
             g.fillOval(X2 - circleRadius / 2, Y2 - circleRadius / 2, circleRadius, circleRadius); // Draw circle at (x2, y2)
             
             
-            g.setFont(new Font("Arial", Font.PLAIN, 15)); // Set font size to 12
-            g.setColor(Color.RED);
-            g.drawString("(" + x1 + "," + y1+ ")", X1, Y1- 5); // Labels vertex (x1, y1)
-            g.drawString("(" + x2 + "," + y2 + ")", X2, Y2 - 5); // Labels vertex (x2, y2)
-            g.drawString("dist("+String.format("%.2f", dist)+")", ((X1+X2)/2)-5, ((Y1+Y2)/2)-5); // This line will display the distance measure of the line
+            //g.setFont(new Font("Arial", Font.PLAIN, 15)); // Set font size to 12
+            
+            //g.drawString("(" + x1 + "," + y1+ ")", X1, Y1- 5); // Labels vertex (x1, y1)
+            //g.drawString("(" + x2 + "," + y2 + ")", X2, Y2 - 5); // Labels vertex (x2, y2)
+            //g.drawString("dist("+String.format("%.2f", dist)+")", ((X1+X2)/2)-5, ((Y1+Y2)/2)-5); // This line will display the distance measure of the line
         }
     }
 
     private JTextField x1Field, y1Field, x2Field, y2Field;// These are variables that stores the coordinates of the two points (x1,y1) & (x2,y2)
     private JButton drawButton; // This is a variable that stores a button object which when clicked will draw a line on the graph
+    private JButton clearButton;
+    private JButton lineDataButton;
+    private JPanel linesPanel;
     private JPanel drawingPanel; // This defines the section of our window that will be used for drawing lines and for the display of the Cartesian Graph.
-    //private double distance;
     private List<LineSegment> lines = new ArrayList<>();
-    //private List<Double> dist = new ArrayList<>();
+    private JFrame linesFrame;
 
     public CartesianGraphv2() {
         setTitle("Cartesian Graph v2"); // Gives a name to the window of our program
@@ -103,12 +113,34 @@ public class CartesianGraphv2 extends JFrame {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 drawCartesianGraph(g); // First draws the cartesian graph
+                int i=0;
                 for (LineSegment line : lines) {
-                    line.draw(g); // Draws lines every time  value is enterd by the user
+                    line.draw(g, i); // Draws lines every time  value is enterd by the user
+                    i++;
                 }
             }
         };
 
+        lineDataButton= new JButton("show data");
+        lineDataButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                if (!lines.isEmpty()) {
+                    showLinesFrame();
+                } else {
+                    JOptionPane.showMessageDialog(CartesianGraphv2.this, "No lines to show.");
+                }
+            }
+        });
+
+        clearButton = new JButton("clear");
+        clearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e){
+                lines.clear();
+                drawingPanel.repaint();
+            }
+        });
 
         // Create draw button that when clicked will draw a line on to the graph
         drawButton = new JButton("Draw Line"); // The label of the button says "Draw Line:"
@@ -116,16 +148,67 @@ public class CartesianGraphv2 extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 drawLine();
+                //updateLinesPanel();
+                //linesFrame.repaint();
                 drawingPanel.repaint();// This means that everytime the button is clicked, a new line is drawn on the graph
+                showLinesFrame();
             }
         });
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                drawingPanel.repaint();
+            }
+        });
+        
+        JPanel lowerPanel = new JPanel(new GridLayout(1,3));
+        lowerPanel.add(drawButton);
+        lowerPanel.add(clearButton);
+        lowerPanel.add(lineDataButton);
 
         // Add the different components to the program window such as the coordinate inputs, The Graph & the button
         Container contentPane = getContentPane();
         contentPane.add(inputPanel, BorderLayout.NORTH); // input components at the top
         contentPane.add(drawingPanel, BorderLayout.CENTER); // cartesian graph at the center
-        contentPane.add(drawButton, BorderLayout.SOUTH); // 'Draw Line' button at the bottom
+        contentPane.add(lowerPanel, BorderLayout.SOUTH); // 'Draw Line' button at the bottom
     }
+
+
+    private void updateLinesPanel(){
+        linesPanel = new JPanel(new GridLayout(lines.size(), 1));
+
+            // Iterate through each line and add label with coordinates and distance
+            int i =0;
+            for (LineSegment line: lines) {
+
+                i++;
+                JLabel label = new JLabel("L" + i + "--> (" + line.x1 + "," + line.y1 + ")   (" + line.x2 + "," + line.y2 + ")  ||  Distance: " + String.format("%.2f",line.dist)+" units");
+                label.setForeground(colors[i-1]); // Set the color of the label
+                linesPanel.add(label);
+            }
+    }
+
+
+    private void showLinesFrame() {
+
+        if (linesFrame != null) {
+            linesFrame.dispose();
+        }
+
+            linesFrame = new JFrame("Lines Data");
+            linesFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            linesFrame.setSize(300, 200);
+
+            // Create a panel to display line coordinates and distances
+            updateLinesPanel();
+
+            linesFrame.add(linesPanel);
+
+        linesFrame.setVisible(true);
+    }
+
+
 
     // This method will draw and design the outline of the graph (or the drawing area)
     private void drawCartesianGraph(Graphics g) {
@@ -147,16 +230,40 @@ public class CartesianGraphv2 extends JFrame {
         g.drawString("O",(width/2) +5, (height/2) +15); // labels the Origin point of graph (0,0)
 
         // Adds number lines on to the X-axis and Y-axis
-        for(int i=0; i<10; i++){
-            g.drawLine((width/2)-5, i*25, (width/2)+5, i*25);
-            g.drawLine((width/2)-5, height-(i*25), (width/2)+5, height-(i*25));
-
-            g.drawLine(i*25, (height/2)-5 ,i*25, (height/2)+5);
-            g.drawLine(width-(i*25), (height/2)-5 ,width-(i*25), (height/2)+5);
-
-        }
+        printAxisPoints(g);
 
     }
+
+
+    // A method to mark all the points from X & Y axis
+    private void printAxisPoints(Graphics g){
+        int width = drawingPanel.getWidth();
+        int height = drawingPanel.getHeight();
+        int originX = (int) width/2;
+        int originY = (int) height/2;
+
+        int i= originX,j= originX;
+        while(true){
+            i = i+25; j = j-25;
+            if(i >= width || j <= 0){
+                break;
+            }
+            g.drawLine(i, originY-5 ,i, originY+5); // marks the X-axis points from top-down
+            g.drawLine(j, originY-5 ,j, originY+5); // " " " " from bottom-up
+        }
+        i = originY; j = originY;
+        while(true){
+            i = i+25; j = j-25;
+            if(i >= height || j <= 0){
+                break;
+            }
+            g.drawLine(originX-5, i, originX+5, i); // marks the Y-axis points from top-down
+            g.drawLine(originX-5, j, originX+5, j); //  ' ' ' ' from bottom-up
+            j++;
+        }
+    }
+
+
 
     // This method is used to draw the line as per the coordinates given by the user
     private void drawLine() {
@@ -166,11 +273,8 @@ public class CartesianGraphv2 extends JFrame {
             int y1 = Integer.parseInt(y1Field.getText());
             int x2 = Integer.parseInt(x2Field.getText());
             int y2 = Integer.parseInt(y2Field.getText());
-            //g.setColor(Color.RED); // sets the color of the line drawn as red
-            //g.drawLine(convertX(x1), convertY(y1), convertX(x2), convertY(y2)); // Draws a line from the coordinates
             // Addes the values of x & y coordinates of a line to a list of Line Segments
             lines.add(new LineSegment(x1, y1, x2, y2, CalDistance())); 
-
             
         } catch (NumberFormatException e) {
             JOptionPane.showMessageDialog(this, "Please enter valid integers for coordinates."); // This will show a pop-up error message if the inputs of the coordinates aren't Integer values
