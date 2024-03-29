@@ -1,5 +1,18 @@
-import javax.swing.*;
+/* 
+ * This Program Lets's The user draw lines on a graph by entering coordinates
+ * 
+ */
 
+ /*
+    Additional Features (to be added):
+    - Add different colors to different lines drawn.
+    - Add a seperate panel to display the distance values based on the colors of 
+    the lines and coordinates.
+
+    Bugs to Fix: 
+    - Application window scalability issue.
+  */
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
